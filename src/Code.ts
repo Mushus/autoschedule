@@ -12,15 +12,19 @@ function autoschedule() {
     const toDay = new Date(+fromDay + term);
     const events = calender.getEvents(fromDay, toDay);
 
-    const sortedSpotEvent = events.
-        filter((event) => !event.isAllDayEvent()).
-        map((event) => new Schedule(event)).
-        filter(schedule => schedule.isEnable() && schedule.getMyStatus() !== CalendarApp.GuestStatus.OWNER).
-        sort((a, b) => a.getLastUpdate() - b.getLastUpdate());
+    const sortedSpotEvent = events
+        .filter(event => !event.isAllDayEvent())
+        .map(event => new Schedule(event))
+        .filter(
+            schedule =>
+                schedule.isEnable() &&
+                schedule.getMyStatus() !== CalendarApp.GuestStatus.OWNER
+        )
+        .sort((a, b) => a.getLastUpdate() - b.getLastUpdate());
 
     for (let i = 0; i < sortedSpotEvent.length; i++) {
+        const target = sortedSpotEvent[i];
         let confrict = false;
-        let target = sortedSpotEvent[i];
         // すでに判定しているスケジュールとみくらべる
         for (let k = 0; k < i; k++) {
             const fixed = sortedSpotEvent[k];
@@ -40,7 +44,7 @@ function autoschedule() {
 
 class Schedule {
     private event: GoogleAppsScript.Calendar.CalendarEvent;
-    private enable: Boolean;
+    private enable: boolean;
     private start: number;
     private end: number;
     private lastUpdate: number;
@@ -54,36 +58,38 @@ class Schedule {
         this.enable = this.myStatus !== CalendarApp.GuestStatus.NO;
     }
     // 含まれているか
-    contains(target: Schedule) {
-        return this.enable && this.start < target.end && target.start < this.end;
+    public contains(target: Schedule) {
+        return (
+            this.enable && this.start < target.end && target.start < this.end
+        );
     }
 
-    getLastUpdate() {
+    public getLastUpdate() {
         return this.lastUpdate;
     }
 
-    isEnable() {
+    public isEnable() {
         return this.enable;
     }
 
-    disabled() {
+    public disabled() {
         this.enable = false;
         this.setStatus(CalendarApp.GuestStatus.NO);
     }
 
-    fixed() {
+    public fixed() {
         this.enable = true;
         this.setStatus(CalendarApp.GuestStatus.YES);
     }
 
-    setStatus(status: GoogleAppsScript.Calendar.GuestStatus) {
+    public setStatus(status: GoogleAppsScript.Calendar.GuestStatus) {
         if (this.myStatus === status) {
             return;
         }
         this.event.setMyStatus(status);
         this.myStatus = status;
     }
-    getMyStatus() {
+    public getMyStatus() {
         return this.myStatus;
     }
 }
