@@ -2,20 +2,25 @@
 const Day = 24 * 60 * 60 * 1000;
 
 // 期間(日)
-const term = 10 * Day;
+const term = 30 * Day;
 
 // 最終更新日のプロパティ名
 const LastUpdateKey = "last_update";
+
 // スケジュールバッチ
 function autoschedule() {
     const calender = CalendarApp.getDefaultCalendar();
+
     const fromDay = new Date();
     const toDay = new Date(+fromDay + term);
     const events = calender.getEvents(fromDay, toDay);
+
     const sortedSpotEvent = events.
         filter((event) => !event.isAllDayEvent()).
         map((event) => new Schedule(event)).
-        sort((a, b) => a.getLastUpdate() - b.getLastUpdate())
+        filter(schedule => schedule.getMyStatus() !== CalendarApp.GuestStatus.OWNER).
+        sort((a, b) => a.getLastUpdate() - b.getLastUpdate());
+
     for (let i = 0; i < sortedSpotEvent.length; i++) {
         let confrict = false;
         let target = sortedSpotEvent[i];
@@ -29,9 +34,9 @@ function autoschedule() {
         }
         // 被ってる？
         if (confrict) {
-            target.disabled()
+            target.disabled();
         } else {
-            target.fixed()
+            target.fixed();
         }
     }
 }
@@ -49,6 +54,7 @@ class Schedule {
         this.start = +event.getStartTime();
         this.end = +event.getEndTime();
         this.lastUpdate = +event.getLastUpdated();
+        this.myStatus = event.getMyStatus();
     }
     // 含まれているか
     contains(target: Schedule) {
@@ -61,18 +67,22 @@ class Schedule {
 
     disabled() {
         this.enable = false;
-        this.setStatus(GoogleAppsScript.Calendar.GuestStatus.NO);
+        this.setStatus(CalendarApp.GuestStatus.NO);
     }
 
     fixed() {
         this.enable = true;
-        this.setStatus(GoogleAppsScript.Calendar.GuestStatus.YES);
+        this.setStatus(CalendarApp.GuestStatus.YES);
     }
 
     setStatus(status: GoogleAppsScript.Calendar.GuestStatus) {
-        if (this.myStatus == status) {
+        if (this.myStatus === status) {
             return;
         }
         this.event.setMyStatus(status);
+        this.myStatus = status;
+    }
+    getMyStatus() {
+        return this.myStatus;
     }
 }

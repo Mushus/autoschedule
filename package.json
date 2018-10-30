@@ -10,8 +10,9 @@
   },
   "scripts": {
     "fmt": "tslint",
-    "login": "clasp login",
+    "glogin": "clasp login",
     "dev": "clasp push --watch",
-    "deploy": "git rev-parse --short HEAD | xargs ./node_modules/.bin/clasp deploy"
+    "push": "clasp push",
+    "deploy": "date +\"%Y%m%d\" | xargs ./node_modules/.bin/clasp deploy"
   }
 }
