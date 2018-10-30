@@ -1,0 +1,17 @@
+{
+  "name": "autoschedule",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@google/clasp": "^1.6.3",
+    "@types/google-apps-script": "^0.0.31",
+    "tslint": "^5.11.0"
+  },
+  "scripts": {
+    "fmt": "tslint",
+    "login": "clasp login",
+    "dev": "clasp push --watch",
+    "deploy": "git rev-parse --short HEAD | xargs ./node_modules/.bin/clasp deploy"
+  }
+}
