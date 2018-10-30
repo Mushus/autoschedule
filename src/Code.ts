@@ -51,7 +51,7 @@ class Schedule {
         this.end = +event.getEndTime();
         this.lastUpdate = +event.getLastUpdated();
         this.myStatus = event.getMyStatus();
-        this.enable = this.myStatus === CalendarApp.GuestStatus.NO;
+        this.enable = this.myStatus !== CalendarApp.GuestStatus.NO;
     }
     // 含まれているか
     contains(target: Schedule) {
