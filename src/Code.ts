@@ -4,9 +4,6 @@ const Day = 24 * 60 * 60 * 1000;
 // 期間(日)
 const term = 30 * Day;
 
-// 最終更新日のプロパティ名
-const LastUpdateKey = "last_update";
-
 // スケジュールバッチ
 function autoschedule() {
     const calender = CalendarApp.getDefaultCalendar();
@@ -18,7 +15,7 @@ function autoschedule() {
     const sortedSpotEvent = events.
         filter((event) => !event.isAllDayEvent()).
         map((event) => new Schedule(event)).
-        filter(schedule => schedule.getMyStatus() !== CalendarApp.GuestStatus.OWNER).
+        filter(schedule => schedule.isEnable() && schedule.getMyStatus() !== CalendarApp.GuestStatus.OWNER).
         sort((a, b) => a.getLastUpdate() - b.getLastUpdate());
 
     for (let i = 0; i < sortedSpotEvent.length; i++) {
@@ -48,13 +45,13 @@ class Schedule {
     private end: number;
     private lastUpdate: number;
     private myStatus: GoogleAppsScript.Calendar.GuestStatus;
-    constructor(event: GoogleAppsScript.Calendar.CalendarEvent, enable = true) {
-        this.enable = enable;
+    constructor(event: GoogleAppsScript.Calendar.CalendarEvent) {
         this.event = event;
         this.start = +event.getStartTime();
         this.end = +event.getEndTime();
         this.lastUpdate = +event.getLastUpdated();
         this.myStatus = event.getMyStatus();
+        this.enable = this.myStatus === CalendarApp.GuestStatus.NO;
     }
     // 含まれているか
     contains(target: Schedule) {
@@ -63,6 +60,10 @@ class Schedule {
 
     getLastUpdate() {
         return this.lastUpdate;
+    }
+
+    isEnable() {
+        return this.enable;
     }
 
     disabled() {
