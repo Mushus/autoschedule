@@ -19,6 +19,8 @@ yarn glogin
 yarn push
 ```
 
+Google Apps Script の画面から自動実行するようにスケジュール設定をしておくといいと思います。
+
 ## デプロイ先を変更する
 
 `.clasp.json` をいじる
